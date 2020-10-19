@@ -3,7 +3,7 @@
   "productName": "PTC",
   "version": "0.1.0",
   "description": "",
-  "repository":{
+  "repository": {
     "type": "git",
     "url": "https://github.com/teo86/PTC.git"
   },
@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "electron": "^8.2.5",
+    "electron-builder": "^22.9.1",
     "electron-packager": "^15.1.0"
   }
 }
