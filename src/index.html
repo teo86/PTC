@@ -1,0 +1,123 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1"> 
+	<title>PTC</title> 
+	<!-- https://electronjs.org/docs/tutorial 
+						/security#csp-meta-tag -->
+	<meta http-equiv="Content-Security-Policy"
+		content="script-src 'self' 'unsafe-inline';" /> 
+	<style>
+		table, th, td {
+		  border: 1px solid black;
+		}
+		h1, h4, p, button, div, table{
+			text-align: center;
+		}
+		.loader {
+			position: absolute;
+  			left: 50%;
+  			top: 50%;
+  			z-index: 1;
+  			width: 150px;
+  			height: 150px;
+  			margin: -75px 0 0 -75px;
+  			border: 16px solid #f3f3f3;
+  			border-radius: 50%;
+  			border-top: 16px solid #3498db;
+  			width: 120px;
+  			height: 120px;
+  			-webkit-animation: spin 2s linear infinite;
+  			animation: spin 2s linear infinite;
+		}
+
+/* Safari */
+		@-webkit-keyframes spin {
+  			0% { -webkit-transform: rotate(0deg); }
+  			100% { -webkit-transform: rotate(360deg); }
+		}
+
+		@keyframes spin {
+  			0% { transform: rotate(0deg); }
+  			100% { transform: rotate(360deg); }
+		}
+
+		#notification {
+  			position: fixed;
+  			bottom: 20px;
+  			left: 20px;
+  			width: 200px;
+  			padding: 20px;
+  			border-radius: 5px;
+  			background-color: white;
+  			box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+		}
+		.hidden {
+  			display: none;
+		}
+	</style>
+</head> 
+<body style="background-color:powderblue;"> 
+	<h1>Participant Tabels Check</h1> 
+	<div class="loader" id="load" hidden></div>
+	<div id="result"></div>
+	<div id="upl" hidden>
+		<label for="usrname">Username</label>
+		<input type="text" id="usrname" name="usrname" required>
+	
+		<label for="psw">Password</label>
+		  <input type="password" id="psw" name="psw" required>
+	
+		  <button id="submit">Submit</button>
+	</div>
+	<h4 id="text">Select file</h4> 
+    <p><button id="upload">Upload File</button> 
+    <button id="check" hidden>Check the file</button></p>
+	
+	<!-- Adding Individual Renderer Process JS File -->
+	<script src="index.js"></script> 
+
+	<p id="version"></p>
+	<div id="notification" class="hidden">
+		<p id="message"></p>
+		<button id="close-button" onClick="closeNotification()">
+		  Close
+		</button>
+		<button id="restart-button" onClick="restartApp()" class="hidden">
+		  Restart
+		</button>
+	  </div>
+  <script>
+    const { ipcRenderer } = require('electron');
+    const version = document.getElementById('version');
+    
+    ipcRenderer.send('app_version');
+    ipcRenderer.on('app_version', (event, arg) => {
+      ipcRenderer.removeAllListeners('app_version');
+      version.innerText = 'Version ' + arg.version;
+	});
+	
+	const notification = document.getElementById('notification');
+	const message = document.getElementById('message');
+	const restartButton = document.getElementById('restart-button');
+	ipcRenderer.on('update_available', () => {
+  		ipcRenderer.removeAllListeners('update_available');
+  		message.innerText = 'A new update is available. Downloading now...';
+  		notification.classList.remove('hidden');
+	});
+	ipcRenderer.on('update_downloaded', () => {
+  		ipcRenderer.removeAllListeners('update_downloaded');
+  		message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?';
+  		restartButton.classList.remove('hidden');
+  		notification.classList.remove('hidden');
+	});
+	function closeNotification() {
+  		notification.classList.add('hidden');
+	}
+	function restartApp() {
+  		ipcRenderer.send('restart_app');
+	}
+  </script>
+
+</body> 
+</html> 
