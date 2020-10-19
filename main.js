@@ -2,10 +2,11 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 
 const { autoUpdater } = require('electron-updater');
 
+let win
 
 function createWindow () { 
 
-const win = new BrowserWindow({ 
+win = new BrowserWindow({ 
 	width: 800, 
 	height: 600, 
 	webPreferences: { 
@@ -18,12 +19,13 @@ win.setMenuBarVisibility(false)
 win.loadFile('src/index.html') 
 
 
-win.webContents.openDevTools() 
+
 
 win.once('ready-to-show', () => {
 	autoUpdater.checkForUpdatesAndNotify();
   });
 
+  win.webContents.openDevTools() 
 
 } 
 

@@ -1,12 +1,17 @@
 {
   "name": "electronjs",
   "productName": "PTC",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "build": {
     "win": {
       "icon": "assets/ipsoslogo.ico"
-      }
+      },
+      "publish":[{
+        "provider": "github",
+        "owner": "teo86",
+        "repo": "PTC"
+      }]
   },
   "repository": {
     "type": "git",
