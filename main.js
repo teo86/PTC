@@ -4,6 +4,11 @@ const { autoUpdater } = require('electron-updater');
 
 let win
 
+function sendStatusToWindow(text) {
+	log.info(text);
+	win.webContents.send('message', text);
+  }
+
 function createWindow () { 
 
 win = new BrowserWindow({ 
@@ -21,9 +26,10 @@ win.loadFile('src/index.html')
 
 
 
-win.once('ready-to-show', () => {
-	autoUpdater.checkForUpdatesAndNotify();
-  });
+// win.once('ready-to-show', () => {
+// 	autoUpdater.checkForUpdatesAndNotify();
+	
+//   });
 
   win.webContents.openDevTools() 
 
@@ -51,14 +57,24 @@ ipcMain.on('app_version', (event) => {
 	event.sender.send('app_version', { version: app.getVersion() });
   });
 
+  autoUpdater.checkForUpdatesAndNotify();;
 
   autoUpdater.on('update-available', () => {
 	win.webContents.send('update_available');
+	console.log("Here")
   });
   autoUpdater.on('update-downloaded', () => {
 	win.webContents.send('update_downloaded');
+	console.log("Here1")
   });
+
+  autoUpdater.on('update-not-available', function (info) {
+	console.log("Here2")
+	sendStatusToWindow('Update not available.');
+	
+});
 
   ipcMain.on('restart_app', () => {
 	autoUpdater.quitAndInstall();
   });
+
