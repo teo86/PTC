@@ -25,12 +25,6 @@ win.loadFile('src/index.html')
 
 
 
-
-// win.once('ready-to-show', () => {
-// 	autoUpdater.checkForUpdatesAndNotify();
-	
-//   });
-
 //   win.webContents.openDevTools() 
 
 } 

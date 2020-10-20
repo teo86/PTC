@@ -74,7 +74,7 @@ module.exports = {
         return obj
 
 
-        // return JSON.stringify(result)
+        
     },
     SendFile: function SendFile(user,pasw,fileName,fs,div,loader) {
 
@@ -89,13 +89,6 @@ module.exports = {
 
         let client = new Client();
 
-        let parts = global.filepath.split("\\")
-        // console.log(fileName)
-        // console.log(global.filepath)
-        fs.writeFileSync(global.filepath,"C:/Users/teodosi.tomov/Desktop/New folder/"+parts[parts.length -1], (err) => { 
-            if (err) { 
-              console.log("Error Found:", err); 
-            } })
         let data = fs.createReadStream(global.filepath);
         let remote = '/path/to/remote/file.txt';
         
@@ -109,6 +102,7 @@ module.exports = {
                 return client.end();
             })
             .catch(err => {
+                data.close()
                 div.innerHTML = "<h3>"+err.message+"</h3>"
                 loader.hidden = true
                 console.error(err.message);
