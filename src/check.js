@@ -83,7 +83,7 @@ module.exports = {
         const config = {
             host: 'uksftp.ipsos.com',
             port: 22,
-            retries: 2,
+            retries: 1,
             username: user,
             password: pasw
           };
@@ -91,7 +91,8 @@ module.exports = {
         let client = new Client();
 
         let data = fs.createReadStream(global.filepath);
-        let remote = '/test.xlsx';
+        // let data = global.filepath;
+        let remote = '/home/test.xlsx';
        
         client.connect(config)
             .then(() => {
@@ -110,6 +111,8 @@ module.exports = {
                 console.error(err.code);
             });
             
+            // div.innerHTML = "<h3>"+JSON.stringify(client)+"</h3>"
+            // loader.hidden = true
             return {div, loader}
     }
 }

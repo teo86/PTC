@@ -88,9 +88,10 @@ uploadFile.addEventListener('click', () => {
 					text.hidden = false
 					text.innerHTML = "<h3>Username and password are mandatory!</h3>"
 				} else {
+					loader.hidden = false
 					SendFile(userName,psw,global.filepath,fs,div,loader)
 					text.hidden = true
-					loader.hidden = false
+					
 					upl.hidden = true
 				}
 			})	
