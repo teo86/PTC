@@ -81,17 +81,17 @@ module.exports = {
         const Client = require('ssh2-sftp-client');
 
         const config = {
-            host: '',
+            host: 'uksftp.ipsos.com',
             port: 22,
             username: user,
             password: pasw
           };
-
+          
         let client = new Client();
 
         let data = fs.createReadStream(global.filepath);
-        let remote = '/path/to/remote/file.txt';
-        
+        let remote = '/test.xlsx';
+       
         client.connect(config)
             .then(() => {
                 return client.put(data, remote);
@@ -105,7 +105,7 @@ module.exports = {
                 data.close()
                 div.innerHTML = "<h3>"+err.message+"</h3>"
                 loader.hidden = true
-                console.error(err.message);
+                console.error(err.code);
             });
             
             return {div, loader}
