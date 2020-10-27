@@ -1,7 +1,7 @@
 {
   "name": "electronjs",
-  "productName": "PTC",
-  "version": "0.2.2",
+  "productName": "PTV",
+  "version": "0.2.3",
   "description": "",
   "build": {
     "win": {

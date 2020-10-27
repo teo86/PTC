@@ -83,6 +83,7 @@ module.exports = {
         const config = {
             host: 'uksftp.ipsos.com',
             port: 22,
+            retries: 2,
             username: user,
             password: pasw
           };
@@ -94,6 +95,7 @@ module.exports = {
        
         client.connect(config)
             .then(() => {
+                console.log("Hello")
                 return client.put(data, remote);
             })
             .then(() => {
