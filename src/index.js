@@ -2,6 +2,8 @@ const electron = require('electron');
 const path = require('path'); 
 const fs = require('fs');
 const excelToJson = require('convert-excel-to-json');
+const homeDir = require('path').join(require('os').homedir(), 'Desktop')
+
 
 let { Check,SendFile,CheckSheetName } = require("./check");
 
@@ -148,7 +150,7 @@ checker.addEventListener('click', () => {
 
 	if (result['lastStatus']==="") {
 		
-		div.innerHTML = "<h3>Error/s Found</h3>"
+		div.innerHTML = "<h3>"+result.numberOfErrors+" Errors Found. Check the files on your desktop.</h3>"
 		CreateTable(result)
 		// div.appendChild(tbl)
 		
@@ -189,7 +191,7 @@ function CreateTable(data) {
 	
 	if (data['errorDescription'].filter(x=>x.Type === "PT").length>0) {
 		
-		let stream = fs.createWriteStream(path.join(__dirname, '/Participant.csv'))
+		let stream = fs.createWriteStream(homeDir +'/Participant.csv')
 		stream.write("Id,row,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "PT")
 		err.forEach(x=>{
@@ -199,7 +201,7 @@ function CreateTable(data) {
 	}
 	if (data['errorDescription'].filter(x=>x.Type === "CH").length>0) {
 		
-		let stream = fs.createWriteStream(path.join(__dirname, '/CallHistory.csv'))
+		let stream = fs.createWriteStream(homeDir +'/CallHistory.csv')
 		stream.write("SampleId,Id,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "CH")
 		err.forEach(x=>{
@@ -208,8 +210,8 @@ function CreateTable(data) {
 		stream.end()
 	}
 	if (data['errorDescription'].filter(x=>x.Type === "Mrg").length>0) {
-		
-		let stream = fs.createWriteStream(path.join(__dirname, '/Participant VS CallHistory.csv'))
+	
+		let stream = fs.createWriteStream(homeDir +'/Participant VS CallHistory.csv')
 		stream.write("Id,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "Mrg")
 		err.forEach(x=>{
