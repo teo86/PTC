@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const excelToJson = require('convert-excel-to-json');
 
-let { Check,SendFile } = require("./check");
+let { Check,SendFile,CheckSheetName } = require("./check");
 
 // Importing dialog module using remote 
 const dialog = electron.remote.dialog; 
@@ -15,154 +15,208 @@ let upl = document.getElementById('upl')
 let but = document.getElementById('submit')
 let loader = document.getElementById('load')
 let text = document.getElementById('text')
+let text2 = document.getElementById('text2')
+
+let uploadFile2 = document.getElementById('upload2'); 
 
 // Defining a Global file path Variable to store 
 // user-selected file 
 // global.filepath = undefined; 
 
+if (!global.hasOwnProperty('filepath')) {
+	global.filepath = {"Default": path.join(__dirname, '') }
+}
+
 uploadFile.addEventListener('click', () => { 
         
-// If the platform is 'win32' or 'Linux' 
-	if (process.platform !== 'darwin') { 
-		// Resolves to a Promise<Object> 
-		dialog.showOpenDialog({ 
-			title: 'Select the File', 
-			defaultPath: path.join(__dirname, '../assets/'), 
-			buttonLabel: 'Upload', 
-			// Restricting the user to only Text Files. 
-			filters: [ 
-				{ 
-					name: 'Text Files', 
-					extensions: ['xlsx'] 
-				}, ], 
-			// Specifying the File Selector Property 
-			properties: ['openFile','multiSelections'] 
-		}).then(file => { 
-			// Stating whether dialog operation was 
-			// cancelled or not. 
-			console.log(file.canceled); 
-			if (!file.canceled) { 
-			// Updating the GLOBAL filepath variable 
-            // to user-selected file. 
-			let result = null
-			global.filepath = undefined
-			global.filepath = file.filePaths[0].toString();
-			// fileName = file.filePaths[0].toString()
-			result = Check(global.filepath)
-			
-			// console.log(fileName)
-			
-			uploadFile.hidden = true
-    		checker.hidden = false;
-			
-			checker.addEventListener('click', () => { 
-                uploadFile.hidden = false
-				checker.hidden = true
-				// upl.hidden = true
-				// console.log(result)
+	// If the platform is 'win32' or 'Linux' 
+		if (process.platform !== 'darwin') { 
+			// Resolves to a Promise<Object> 
+			dialog.showOpenDialog({ 
+				title: 'Select Participant Table File', 
+				defaultPath: path.join(__dirname, ''), 
+				buttonLabel: 'Upload', 
+				// Restricting the user to only Text Files. 
+				filters: [ 
+					{ 
+						name: 'Participant Table File', 
+						extensions: ['xlsx'] 
+					}, ], 
+				// Specifying the File Selector Property 
+				properties: ['openFile','multiSelections'] 
+			}).then(file => { 
+				// Stating whether dialog operation was 
+				// cancelled or not. 
+				console.log(file.canceled); 
+				if (!file.canceled) { 
+				// Updating the GLOBAL filepath variable 
+				// to user-selected file. 
+				let result = null
 				
 				
-				if (result['lastStatus']==="") {
-					div.innerHTML = ""
-					let tbl = CreateTable(result)
-					div.appendChild(tbl)
-					file.filePaths[0] = undefined
-				}else if (result['lastStatus']!=="The file is OK") {
-					div.innerHTML = ""
-					div.innerHTML = "<h3>" + result['lastStatus'] + "</h3>"
-					file.filePaths[0] = undefined
-				} else {
-					div.innerHTML = ""
-					upl.hidden = false
+				global.filepath.PT = file.filePaths[0].toString();
+				
+				result = CheckSheetName(global.filepath.PT,"Participants")
+				
+				if (result==="Ok") {
 					uploadFile.hidden = true
-					text.hidden = true
-				}
-
-            })   
-			but.addEventListener('click', () => {
-				
-				let userName = document.getElementById('usrname').value
-				let psw = document.getElementById('psw').value
-				
-				if (userName==="" || psw==="") {
-					text.hidden = false
-					text.innerHTML = "<h3>Username and password are mandatory!</h3>"
+					text.innerText = "File Ready"
 				} else {
-					loader.hidden = false
-					text.hidden = true
-					upl.hidden = true
-					SendFile(userName,psw,global.filepath,fs,div,loader)
-					
+					text.innerText = result
 				}
-			})	
-			
-			
-			// global.filepath = file.filePaths[0].toString(); 
-			// console.log(global.filepath); 
-			} 
-		}).catch(err => { 
-			console.log(err) 
-		}); 
-	} 
 
 
-	// else { 
-	// 	// If the platform is 'darwin' (macOS) 
-	// 	dialog.showOpenDialog({ 
-	// 		title: 'Select the File to be uploaded', 
-	// 		defaultPath: path.join(__dirname, '../assets/'), 
-	// 		buttonLabel: 'Upload', 
-	// 		filters: [ 
-	// 			{ 
-	// 				name: 'Text Files', 
-	// 				extensions: ['txt', 'docx'] 
-	// 			}, ], 
-	// 		// Specifying the File Selector and Directory 
-	// 		// Selector Property In macOS 
-	// 		properties: ['openFile', 'openDirectory'] 
-	// 	}).then(file => { 
-	// 		console.log(file.canceled); 
-	// 		if (!file.canceled) { 
-	// 		global.filepath = file.filePaths[0].toString(); 
-	// 		console.log(global.filepath); 
-	// 		} 
-	// 	}).catch(err => { 
-	// 		console.log(err) 
-	// 	}); 
-	// } 
+				if (uploadFile.hidden===true && uploadFile2.hidden===true) {
+					text.innerText = "Check the files"
+					text2.hidden = true
+					checker.hidden = false
+				}
+				
+				
+				// global.filepath = file.filePaths[0].toString(); 
+				// console.log(global.filepath); 
+				} 
+			}).catch(err => { 
+				console.log(err) 
+			}); 
+		} 
 }); 
 
 
-function CreateTable(data) {
-	let tbl = document.createElement('table');
-	let arr = ["Id","row","text"]
-	let header = tbl.createTHead()
-	let row = header.insertRow(0)
-	let cell1 = row.insertCell(0)
-	cell1.innerHTML = "<b>Id</b>"
-	let cell2 = row.insertCell(1)
-	cell2.innerHTML = "<b>Row</b>"
-	let cell3 = row.insertCell(2)
-	cell3.innerHTML = "<b>Description</b>"
+uploadFile2.addEventListener('click', () => { 
+        
+	// If the platform is 'win32' or 'Linux' 
+		if (process.platform !== 'darwin') { 
+			// Resolves to a Promise<Object> 
+			dialog.showOpenDialog({ 
+				title: 'Select Call History File', 
+				defaultPath: path.join(__dirname, ''), 
+				buttonLabel: 'Upload', 
+				// Restricting the user to only Text Files. 
+				filters: [ 
+					{ 
+						name: 'Call History Files', 
+						extensions: ['xlsx'] 
+					}, ], 
+				// Specifying the File Selector Property 
+				properties: ['openFile','multiSelections'] 
+			}).then(file => { 
+				// Stating whether dialog operation was 
+				// cancelled or not. 
+				console.log(file.canceled); 
+				if (!file.canceled) { 
+				// Updating the GLOBAL filepath variable 
+				// to user-selected file. 
+				let result = null
+				
+				
+				global.filepath.CH = file.filePaths[0].toString();
+				
+				result = CheckSheetName(global.filepath.CH,"Sheet1")
+				
+				if (result==="Ok") {
+					uploadFile2.hidden = true
+					text2.innerText = "File Ready"
+				} else {
+					text2.innerText = result
+				}
 
-	let tableBody = document.createElement('tbody');
 
-	data['errorDescription'].forEach(function(rowData) {
-	  let row = document.createElement('tr');
+				if (uploadFile.hidden===true && uploadFile2.hidden===true) {
+					text.innerText = "Check the files"
+					text2.hidden = true
+					checker.hidden = false
+				}
+				
+				
+				
+				// global.filepath = file.filePaths[0].toString(); 
+				// console.log(global.filepath); 
+				} 
+			}).catch(err => { 
+				console.log(err) 
+			}); 
+		} 
+}); 
+
+checker.addEventListener('click', () => { 
+	
+	checker.hidden = true
+	text.hidden = true
+	let result = null
+	result = Check(global.filepath)
+
+	if (result['lastStatus']==="") {
 		
-	  
-	  arr.forEach(function(cellData) {
-		let cell = document.createElement('td');
-		cell.appendChild(document.createTextNode(rowData[cellData]));
-		row.appendChild(cell);
-	  });
-  
-	  tableBody.appendChild(row);
-	});
-  
-	tbl.appendChild(tableBody);
+		div.innerHTML = "<h3>Error/s Found</h3>"
+		CreateTable(result)
+		// div.appendChild(tbl)
+		
+	}else if (result['lastStatus']!=="The file is OK") {
+		div.innerHTML = ""
+		div.innerHTML = "<h3>" + result['lastStatus'] + "</h3>"
+	} else {
+		div.innerHTML = "<h3>The Files are OK. Please use your user name and password to upload them.</h3>"
+		upl.hidden = false
+		text.hidden = true
+	}
+
+})
+
+
+but.addEventListener('click', () => {
+					
+	let userName = document.getElementById('usrname').value
+	let psw = document.getElementById('psw').value
+	
+	if (userName==="" || psw==="") {
+		text.hidden = false
+		text.innerHTML = "<h3>Username and password are mandatory!</h3>"
+	} else {
+		loader.hidden = false
+		text.hidden = true
+		upl.hidden = true
+		SendFile(userName,psw,global.filepath,fs,div,loader)
+		
+	}
+})	
 
 
 
-	return tbl
+
+function CreateTable(data) {
+	
+	
+	if (data['errorDescription'].filter(x=>x.Type === "PT").length>0) {
+		
+		let stream = fs.createWriteStream(path.join(__dirname, '/Participant.csv'))
+		stream.write("Id,row,Error Descriptions"+"\r\n")
+		let err = data['errorDescription'].filter(x=>x.Type === "PT")
+		err.forEach(x=>{
+			stream.write(x.Id+","+x.row+","+x.text+"\r\n")
+		})
+		stream.end()
+	}
+	if (data['errorDescription'].filter(x=>x.Type === "CH").length>0) {
+		
+		let stream = fs.createWriteStream(path.join(__dirname, '/CallHistory.csv'))
+		stream.write("SampleId,Id,Error Descriptions"+"\r\n")
+		let err = data['errorDescription'].filter(x=>x.Type === "CH")
+		err.forEach(x=>{
+			stream.write(x.SampleId+","+x.Id+","+x.text+"\r\n")
+		})
+		stream.end()
+	}
+	if (data['errorDescription'].filter(x=>x.Type === "Mrg").length>0) {
+		
+		let stream = fs.createWriteStream(path.join(__dirname, '/Participant VS CallHistory.csv'))
+		stream.write("Id,Error Descriptions"+"\r\n")
+		let err = data['errorDescription'].filter(x=>x.Type === "Mrg")
+		err.forEach(x=>{
+			stream.write(x.Id+","+x.text+"\r\n")
+		})
+		stream.end()
+	}
+	
+
 }
