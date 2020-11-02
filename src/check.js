@@ -51,16 +51,16 @@ module.exports = {
                     let er = {'Id':y.Id, 'row':rows.indexOf(y)+2,'text':"TryCount should be greather than 0"}
                     obj['errorDescription'].push(er)
                 }
-            if (y.hasOwnProperty('CallOutcome') === false) {
+                if (y.hasOwnProperty('CallOutcome') === false) {
                     obj['numberOfErrors']++
                     let er = {'Id':y.Id, 'row':rows.indexOf(y)+2,'text':"Missing CallOutcome"}
                     obj['errorDescription'].push(er)
-            }
-            if (y.hasOwnProperty('UserId') === false) {
-                obj['numberOfErrors']++
-                let er = {'Id':y.Id, 'row':rows.indexOf(y)+2,'text':"Missing UserID"}
-                obj['errorDescription'].push(er)
-            }
+                }
+                if (y.hasOwnProperty('UserId') === false) {
+                    obj['numberOfErrors']++
+                    let er = {'Id':y.Id, 'row':rows.indexOf(y)+2,'text':"Missing UserID"}
+                    obj['errorDescription'].push(er)
+                }
             }
             if (y.TryCount>50) {
                 obj['numberOfErrors']++
@@ -91,10 +91,14 @@ module.exports = {
         let client = new Client();
 
         let data = fs.createReadStream(global.filepath);
-        // let data = global.filepath;
+        
         let remote = '/home/test.xlsx';
        
-        client.connect(config)
+        div.innerHTML = ""
+
+        
+            
+            client.connect(config)
             .then(() => {
                 console.log("Hello")
                 return client.put(data, remote);
@@ -111,8 +115,16 @@ module.exports = {
                 console.error(err.code);
             });
             
-            // div.innerHTML = "<h3>"+JSON.stringify(client)+"</h3>"
-            // loader.hidden = true
+            client.on('disconnect',setTimeout(function(){ myTimer(div,loader) }, 30000))
+            
+            function myTimer(div,loader) {
+                if (div.innerHTML === '') {
+                    div.innerHTML = "<h3>Could not connect to the Server</h3>"
+                    loader.hidden = true
+                    return {div, loader}
+                }
+           }
+
             return {div, loader}
     }
 }
