@@ -113,7 +113,7 @@ module.exports = {
         // TO DO check Call History sorted file
 
         rowsPT.forEach(x => {
-            if (x.Queue==="Fresh") {
+            if (x.Queue.toLowerCase() ==="fresh") {
                 if (recCH.hasOwnProperty(x.Id)=== true) {
                     obj['numberOfErrors']++
                     let er = {'Type': "Mrg", 'Id':x.Id,'text':"Fresh in PT but has record in CH"}
@@ -248,12 +248,13 @@ module.exports = {
                 return client.end();
             })
             .catch(err => {
-                data.close()
+                dataPT.close()
+                dataCH.close()
                 div.innerHTML = "<h3>"+err.message+"</h3>"
                 loader.hidden = true
                 console.error(err.code);
             });
-            
+        
             client.on('end',() => {setTimeout(function(){ myTimer(div,loader) }, 30000)})
             
             function myTimer(div,loader) {
