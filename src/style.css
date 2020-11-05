@@ -1,0 +1,114 @@
+body{
+    background-color:powderblue;
+}
+table, th, td {
+    border: 1px solid black;
+    margin-left: auto;
+    margin-right: auto;
+}
+h4, p, button, div, table{
+  text-align: center;
+}
+.button {
+    background-color: rgb(44, 140, 154);
+    border-radius: 7px;
+    padding: 10px;
+    width: 185px;
+    color: #f8f8f8;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.button:hover {
+    background-color: #010a02; 
+    color: white;
+}
+h1 {
+  text-align: center;
+  font-family: 'Arial Bold', sans-serif;
+  color:#000066
+}
+.loader {
+  position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    width: 150px;
+    height: 150px;
+    margin: -75px 0 0 -75px;
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#notification {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 200px;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+.hidden {
+    display: none;
+}
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+}
+#notifications {
+    float: right;
+    position: absolute;
+    top: 0;
+    right: 0;
+    text-align: center;
+    margin: 1em;
+}
+
+#errorCH, #errorPT, #customerror {
+    color:red;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+.notification {
+    font-size: 1.5em;
+    color: #ffffff;
+    
+    text-align: right;
+}
+
+.notification>span {
+    display: inline-block;
+    padding:  0.5em 2em 0.5em 2em;
+    border-radius: 10px;
+}
+
+#loadingBox>span {
+    background: #7CB3E9;
+}
+#infoBox>span {
+    background: #393;
+}
+#errorBox>span {
+    background: #F50;
+}

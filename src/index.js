@@ -18,6 +18,9 @@ let but = document.getElementById('submit')
 let loader = document.getElementById('load')
 let text = document.getElementById('text')
 let text2 = document.getElementById('text2')
+let errPT = document.getElementById('errorPT')
+let errCH = document.getElementById('errorCH')
+
 
 let uploadFile2 = document.getElementById('upload2'); 
 
@@ -30,7 +33,9 @@ if (!global.hasOwnProperty('filepath')) {
 }
 
 uploadFile.addEventListener('click', () => { 
-        
+		uploadFile.hidden = true
+		errPT.hidden = true
+		text.innerText = "Loadaing.."
 	// If the platform is 'win32' or 'Linux' 
 		if (process.platform !== 'darwin') { 
 			// Resolves to a Promise<Object> 
@@ -55,21 +60,25 @@ uploadFile.addEventListener('click', () => {
 				// to user-selected file. 
 				let result = null
 				
-				
+
 				global.filepath.PT = file.filePaths[0].toString();
+				
 				
 				result = CheckSheetName(global.filepath.PT,"Participants")
 				
 				if (result==="Ok") {
 					uploadFile.hidden = true
-					text.innerText = "File Ready"
+					text.innerText = "Participant Table File is Ready"
 				} else {
-					text.innerText = result
+					uploadFile.hidden = false
+					text.innerText = "Select Participant Table File"
+					errPT.hidden = false
+					errPT.innerText = result
 				}
 
 
 				if (uploadFile.hidden===true && uploadFile2.hidden===true) {
-					text.innerText = "Check the files"
+					text.innerText = "Perform preliminary validation for correspondence between participant table and call history files"
 					text2.hidden = true
 					checker.hidden = false
 				}
@@ -77,7 +86,11 @@ uploadFile.addEventListener('click', () => {
 				
 				// global.filepath = file.filePaths[0].toString(); 
 				// console.log(global.filepath); 
-				} 
+				} else {
+					uploadFile.hidden = false
+					text.innerText = "Select Participant Table File"
+					errPT.hidden = false
+				}
 			}).catch(err => { 
 				console.log(err) 
 			}); 
@@ -86,7 +99,9 @@ uploadFile.addEventListener('click', () => {
 
 
 uploadFile2.addEventListener('click', () => { 
-        
+		uploadFile2.hidden = true
+		errCH.hidden = true
+		text2.innerText = "Loadaing.."
 	// If the platform is 'win32' or 'Linux' 
 		if (process.platform !== 'darwin') { 
 			// Resolves to a Promise<Object> 
@@ -105,6 +120,9 @@ uploadFile2.addEventListener('click', () => {
 			}).then(file => { 
 				// Stating whether dialog operation was 
 				// cancelled or not. 
+				
+				
+
 				console.log(file.canceled); 
 				if (!file.canceled) { 
 				// Updating the GLOBAL filepath variable 
@@ -112,20 +130,24 @@ uploadFile2.addEventListener('click', () => {
 				let result = null
 				
 				
+				
 				global.filepath.CH = file.filePaths[0].toString();
 				
-				result = CheckSheetName(global.filepath.CH,"Sheet1")
+				result = CheckSheetName(global.filepath.CH,"CallHistory")
 				
 				if (result==="Ok") {
 					uploadFile2.hidden = true
-					text2.innerText = "File Ready"
+					text2.innerText = "Call History File Ready"
 				} else {
-					text2.innerText = result
+					uploadFile2.hidden = false
+					text2.innerText = "Select Call History File"
+					errCH.hidden = false
+					errCH.innerText = result
 				}
 
 
 				if (uploadFile.hidden===true && uploadFile2.hidden===true) {
-					text.innerText = "Check the files"
+					text.innerText = "Perform preliminary validation for correspondence between participant table and call history files"
 					text2.hidden = true
 					checker.hidden = false
 				}
@@ -134,7 +156,11 @@ uploadFile2.addEventListener('click', () => {
 				
 				// global.filepath = file.filePaths[0].toString(); 
 				// console.log(global.filepath); 
-				} 
+				} else {
+					uploadFile2.hidden = false
+					text2.innerText = "Select Call History File"
+					errCH.hidden = false
+				}
 			}).catch(err => { 
 				console.log(err) 
 			}); 
@@ -150,17 +176,22 @@ checker.addEventListener('click', () => {
 
 	if (result['lastStatus']==="") {
 		
-		div.innerHTML = "<h3>"+result.numberOfErrors+" Errors Found. Check the files on your desktop.</h3>"
-		CreateTable(result)
+		let sumary = CreateTable(result)
+		if (sumary.files===1) {
+			div.innerHTML = "<h3>"+result.numberOfErrors+" Errors Found. "+sumary.files+" file created on your desktop. Name: "+sumary.names.toString()+"</h3>"
+		} else {
+			div.innerHTML = "<h3>"+result.numberOfErrors+" Errors Found. "+sumary.files+" files created on your desktop. Names: "+sumary.names.toString()+"</h3>"
+		}
 		// div.appendChild(tbl)
 		
 	}else if (result['lastStatus']!=="The file is OK") {
 		div.innerHTML = ""
 		div.innerHTML = "<h3>" + result['lastStatus'] + "</h3>"
 	} else {
-		div.innerHTML = "<h3>The Files are OK. Please use your user name and password to upload them.</h3>"
+		div.innerHTML = "<h3>File validation is completed. No issues found</h3>"
 		upl.hidden = false
-		text.hidden = true
+		// text.hidden = false
+		// text.innerText = "Please provide login information for SFTP upload of validated files to Ipsos"
 	}
 
 })
@@ -173,14 +204,17 @@ but.addEventListener('click', () => {
 	
 	if (userName==="" || psw==="") {
 		text.hidden = false
-		text.innerHTML = "<h3>Username and password are mandatory!</h3>"
+		text.innerHTML = '<h3 id="customerror">Username and password are required!</h3>'
 	} else {
 		loader.hidden = false
 		text.hidden = true
 		upl.hidden = true
-		SendFile(userName,psw,global.filepath,fs,div,loader)
-		
+		SendFile(userName,psw,fs,div,loader,upl)
+		document.getElementById('usrname').value = ""
+		document.getElementById('psw').value = ""
 	}
+
+	
 })	
 
 
@@ -188,9 +222,10 @@ but.addEventListener('click', () => {
 
 function CreateTable(data) {
 	
-	
+	let result = {'files':0, 'names':[]}
 	if (data['errorDescription'].filter(x=>x.Type === "PT").length>0) {
-		
+		result.files++
+		result.names.push("Participant.csv")
 		let stream = fs.createWriteStream(homeDir +'/Participant.csv')
 		stream.write("Id,row,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "PT")
@@ -200,7 +235,8 @@ function CreateTable(data) {
 		stream.end()
 	}
 	if (data['errorDescription'].filter(x=>x.Type === "CH").length>0) {
-		
+		result.files++
+		result.names.push("CallHistory.csv")
 		let stream = fs.createWriteStream(homeDir +'/CallHistory.csv')
 		stream.write("SampleId,Id,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "CH")
@@ -210,7 +246,8 @@ function CreateTable(data) {
 		stream.end()
 	}
 	if (data['errorDescription'].filter(x=>x.Type === "Mrg").length>0) {
-	
+		result.files++
+		result.names.push("Participant VS CallHistory.csv")
 		let stream = fs.createWriteStream(homeDir +'/Participant VS CallHistory.csv')
 		stream.write("Id,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "Mrg")
@@ -220,5 +257,5 @@ function CreateTable(data) {
 		stream.end()
 	}
 	
-
+	return result
 }

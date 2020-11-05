@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron') 
+const { app, BrowserWindow, ipcMain, Menu } = require('electron') 
 
 const { autoUpdater } = require('electron-updater');
 
@@ -18,7 +18,7 @@ win = new BrowserWindow({
 	nodeIntegration: true
 	}
 }) 
-win.setMenuBarVisibility(false)
+// win.setMenuBarVisibility(false)
 
 
 win.loadFile('src/index.html') 
@@ -46,6 +46,30 @@ if (BrowserWindow.getAllWindows().length === 0) {
 	createWindow() 
 } 
 }) 
+
+app.on('ready', () => {
+	const menu = Menu.buildFromTemplate([
+		{
+			label: 'Menu',
+			submenu: [
+			{
+				label: 'Help',
+				click: function() {
+					win.loadURL("https://www.ipsos.com/"); 
+					// TO DO
+				}
+			},
+			{
+				label: 'Back',
+				click: function(){
+					win.loadFile('src/index.html') 
+				}
+			}
+			]
+		}
+	])
+	Menu.setApplicationMenu(menu)
+  })
 
 ipcMain.on('app_version', (event) => {
 	event.sender.send('app_version', { version: app.getVersion() });

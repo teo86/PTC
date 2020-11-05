@@ -31,13 +31,13 @@ module.exports = {
 
         let rowsPT = result.Participants
 
-        resultCH.Sheet1 = resultCH.Sheet1.sort((a, b) => {
+        resultCH.CallHistory = resultCH.CallHistory.sort((a, b) => {
             let date1 = new Date(a.StartTime)
             let date2 = new Date(b.StartTime)
             return date1 - date2
         });
 
-        let rowsCH = resultCH.Sheet1
+        let rowsCH = resultCH.CallHistory
 
         // Check the Participant Table
         rowsPT.forEach(y => {
@@ -175,39 +175,29 @@ module.exports = {
         });
         let text = "Ok"
         let rows = result[target]
+        let forCheck = {"Participants":['Id','Queue','CallOutcome','TryCount','UserId'],
+                        "CallHistory":['Id','UserId','SampleId','StartTime','Duration','CallOutcome']}
+
 
         if (!result.hasOwnProperty(target)) {
             text = 'Wrong sheet name. Should be ' + target
             return text
         }
+        let out =[]
 
-        if (target==="Participants") {
-            if (rows.filter((o) => o.hasOwnProperty('Id')).length === 0
-            || rows.filter((o) => o.hasOwnProperty('Queue')).length === 0
-            || rows.filter((o) => o.hasOwnProperty('CallOutcome')).length === 0
-            || rows.filter((o) => o.hasOwnProperty('TryCount')).length === 0
-            || rows.filter((o) => o.hasOwnProperty('UserId')).length === 0
-                ){
-                    text = 'Missing column. Please use the template'
-            
-                }  
-        } else if (target==="Sheet1") {
-            if (rows.filter((o) => o.hasOwnProperty('Id')).length === 0
-            || rows.filter((o) => o.hasOwnProperty('UserId')).length === 0
-            || rows.filter((o) => o.hasOwnProperty('SampleId')).length === 0
-            || rows.filter((o) => o.hasOwnProperty('StartTime')).length === 0
-            || rows.filter((o) => o.hasOwnProperty('Duration')).length === 0
-            || rows.filter((o) => o.hasOwnProperty('CallOutcome')).length === 0
-                ){
-                    text = 'Missing column. Please use the template'
-            
-                }  
+        forCheck[target].forEach(e => {
+            if (rows.filter((o) => o.hasOwnProperty(e)).length === 0){
+                out.push(e)
+            }
+        });
+        if (out.length>0) {
+            text = "Missing columns: "+ out.toString()
         }
 
         return text
 
     },
-    SendFile: function SendFile(user,pasw,fileName,fs,div,loader) {
+    SendFile: function SendFile(user,pasw,fs,div,loader, upl) {
 
         const Client = require('ssh2-sftp-client');
 
@@ -235,11 +225,9 @@ module.exports = {
             
             client.connect(config)
             .then(() => {
-                console.log("Hello PT")
                 return client.put(dataPT, remotePT);
             })
             .then(() => {
-                console.log("Hello CH")
                 return client.put(dataCH, remoteCH);
             })
             .then(() => {
@@ -250,21 +238,36 @@ module.exports = {
             .catch(err => {
                 dataPT.close()
                 dataCH.close()
-                div.innerHTML = "<h3>"+err.message+"</h3>"
+                if (err.message=='connect: All configured authentication methods failed after 1 attempt') {
+                    div.innerHTML = '<h3 id="customerror">Login failed. Invalid username or password</h3>'
+                    upl.hidden = false
+                } else if(err.message=='connect: Timed out while waiting for handshake after 1 attempt'){
+                    div.innerHTML = '<h3 id="customerror">Could not connect to the Server</h3>'
+                } else if (err.message=='connect: client-socket error. Remote host at 78.136.2.44 refused connection after 1 attempt'){
+                    div.innerHTML = '<h3 id="customerror">Could not connect to the Server</h3>'
+                } else {
+                    div.innerHTML = '<h3 id="customerror">'+err.message+'</h3>'
+                }
+                
                 loader.hidden = true
-                console.error(err.code);
+                console.error(err.message);
+                console.error(err);
             });
         
             client.on('end',() => {setTimeout(function(){ myTimer(div,loader) }, 30000)})
             
-            function myTimer(div,loader) {
+            function myTimer(div,loader,upl) {
                 if (div.innerHTML === '') {
                     div.innerHTML = "<h3>Could not connect to the Server</h3>"
                     loader.hidden = true
-                    return {div, loader}
                 }
+                
+                return {div, loader}
            }
 
-            return {div, loader}
+            return {div, loader, upl}
     }
+
+
+
 }
