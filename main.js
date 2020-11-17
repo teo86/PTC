@@ -15,7 +15,8 @@ win = new BrowserWindow({
 	width: 800, 
 	height: 600, 
 	webPreferences: { 
-	nodeIntegration: true
+		nodeIntegration: true,
+		plugins: true
 	}
 }) 
 // win.setMenuBarVisibility(false)
@@ -56,11 +57,12 @@ app.on('ready', () => {
 				label: 'Help',
 				click: function() {
 					win.loadURL("https://www.ipsos.com/"); 
+					// win.loadFile('src/test.pdf')
 					// TO DO
 				}
 			},
 			{
-				label: 'Back',
+				label: 'Restart',
 				click: function(){
 					win.loadFile('src/index.html') 
 				}

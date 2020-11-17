@@ -171,12 +171,14 @@ checker.addEventListener('click', () => {
 	
 	checker.hidden = true
 	text.hidden = true
+	loader.hidden = false
 	let result = null
 	result = Check(global.filepath)
 
 	if (result['lastStatus']==="") {
 		
 		let sumary = CreateTable(result)
+		loader.hidden = true
 		if (sumary.files===1) {
 			div.innerHTML = "<h3>"+result.numberOfErrors+" Errors Found. "+sumary.files+" file created on your desktop. Name: "+sumary.names.toString()+"</h3>"
 		} else {
@@ -185,9 +187,11 @@ checker.addEventListener('click', () => {
 		// div.appendChild(tbl)
 		
 	}else if (result['lastStatus']!=="The file is OK") {
+		loader.hidden = true
 		div.innerHTML = ""
 		div.innerHTML = "<h3>" + result['lastStatus'] + "</h3>"
 	} else {
+		loader.hidden = true
 		div.innerHTML = "<h3>File validation is completed. No issues found</h3>"
 		upl.hidden = false
 		// text.hidden = false

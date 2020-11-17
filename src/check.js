@@ -1,6 +1,19 @@
 module.exports = {
     Check: function Check(path) {
         
+        let participantLogic = {
+            "FRESH":[],
+            "COMPLETED":['Completed'],
+            "RECALL":['Rejected','NetworkBusy','FastBusy','DialerBusy','DialerFailed','Unknown','RemoteHangup','NoAnswer','AnswerMachine','Busy'],
+            "SILENT":['Silent','RemoteHangup'],
+            "UNUSABLE":['Rejected','NetworkBusy','FastBusy','Unknown','Abandoned','Fax','WrongNumber','Disconnected','NotAvailable','LanguageBarrier','CommunicationDifficulty','HouseholdNumber','CompanyOutOfBusiness','UserDefTerm174','UserDefTerm175','UserDefTerm176','UserDefTerm177','UserDefTerm178','UserDefTerm203','UserDefTerm204','UserDefTerm205','UserDefTerm206','UserDefTerm207','UserDefTerm208','UserDefTerm209','UserDefTerm210','UserDefTerm211','UserDefTerm212','UserDefTerm217','UserDefTerm218','UserDefTerm250','UserDefTerm251','UserDefTerm253','UserDefTerm254','UserDefTerm255','UserDefTerm256','UserDefTerm257','UserDefTerm258','UserDefTerm261','UserDefTerm262','UserDefTerm263','UserDefTerm264','UserDefTerm265','UserDefTerm266','UserDefTerm267','UserDefTerm268','UserDefTerm269','UserDefTerm270','UserDefTerm271','UserDefTerm272','UserDefTerm273','UserDefTerm274','UserDefTerm275','UserDefTerm276','UserDefTerm277','UserDefTerm278','UserDefTerm279'],
+            "CHECK_NUMBER":['PossibleWrongNumber'],
+            "APPOINTMENT":['Appointment','SoftAppointment'],
+            "REFUSED":['Refused','RefusedGatekeeper','RefusedCompanyPolicy','UserDefTerm170','UserDefTerm171','UserDefTerm172','UserDefTerm173']
+        }
+
+
+
         let obj = {
                     'numberOfErrors':0,
                     'lastStatus': "",
@@ -55,7 +68,7 @@ module.exports = {
             if (y.Queue.toLowerCase() !== 'fresh') {
                 if (y.TryCount < 1) {
                     obj['numberOfErrors']++
-                    let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"TryCount should be greather than 0"}
+                    let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Queue is "+y.Queue+" then TryCount should be greather than 0"}
                     obj['errorDescription'].push(er)
                 }
                 if (y.hasOwnProperty('CallOutcome') === false) {
@@ -68,6 +81,21 @@ module.exports = {
                     let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Missing UserID"}
                     obj['errorDescription'].push(er)
                 }
+                // console.log(y.Queue.toUpperCase())
+                if (participantLogic.hasOwnProperty(y.Queue.toUpperCase())) {
+                    if (!participantLogic[y.Queue.toUpperCase()].includes(y.CallOutcome)) {
+                        obj['numberOfErrors']++
+                        let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':'"Mismatch between Queue and CallOutcome. Queue = '+y.Queue+' and CallOutcome = '+y.CallOutcome+'"'}
+                        obj['errorDescription'].push(er)
+                    }
+                } else {
+                    obj['numberOfErrors']++
+                    let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':'"The Queue is unknown. Queue = '+y.Queue+'"'}
+                    obj['errorDescription'].push(er)
+                }
+               
+
+
             }
             if (y.TryCount>50) {
                 obj['numberOfErrors']++
@@ -116,30 +144,30 @@ module.exports = {
             if (x.Queue.toLowerCase() ==="fresh") {
                 if (recCH.hasOwnProperty(x.Id)=== true) {
                     obj['numberOfErrors']++
-                    let er = {'Type': "Mrg", 'Id':x.Id,'text':"Fresh in PT but has record in CH"}
+                    let er = {'Type': "Mrg", 'Id':x.Id,'text':"Queue is Fresh in Participant Table but has record in CallHistory"}
                     obj['errorDescription'].push(er)
                 }
             } else {
                 if (!recCH.hasOwnProperty(x.Id)) {
                     obj['numberOfErrors']++
-                    let er = {'Type': "Mrg", 'Id': x.Id,'text':"Missing in CH"}
+                    let er = {'Type': "Mrg", 'Id': x.Id,'text':"Queue in Participant Table is "+x.Queue+" but the records in CallHistory are missing."}
                     obj['errorDescription'].push(er)
                     return
                 }
                 let current = recCH[x.Id]
                 if (current.UserId!==x.UserId) {
                     obj['numberOfErrors']++
-                    let er = {'Type': "Mrg", 'Id': x.Id,'text':"UserID not match in PT and CH"}
+                    let er = {'Type': "Mrg", 'Id': x.Id,'text':"UserID not match in Participant Table and CallHistory"}
                     obj['errorDescription'].push(er)
                 }
                 if (current.CallOutcome.length!==x.TryCount) {
                     obj['numberOfErrors']++
-                    let er = {'Type': "Mrg", 'Id': x.Id,'text':"Try count in PT and the number of records in CH not match"}
+                    let er = {'Type': "Mrg", 'Id': x.Id,'text':"TryCount in Participant Table is "+x.TryCount+" but the number of records in CallHistory is "+current.CallOutcome.length}
                     obj['errorDescription'].push(er)
                 }
                 if (x.CallOutcome!==current.CallOutcome[current.CallOutcome.length -1]) {
                     obj['numberOfErrors']++
-                    let er = {'Type': "Mrg", 'Id': x.Id,'text':"Last CallOutcome in CH not match PT"}
+                    let er = {'Type': "Mrg", 'Id': x.Id,'text':"Last CallOutcome in CallHistory is "+current.CallOutcome[current.CallOutcome.length -1]+" but in Participant Table is " +x.CallOutcome}
                     obj['errorDescription'].push(er)
                 }
                 
@@ -149,7 +177,7 @@ module.exports = {
         for(let prop in recCH) {
             if(recCH.hasOwnProperty(prop)) {
                 obj['numberOfErrors']++
-                let er = {'Type': "Mrg", 'Id':prop,'text':"Missing in PT"}
+                let er = {'Type': "Mrg", 'Id':prop,'text':"No record in Participant table for Id = "+prop}
                 obj['errorDescription'].push(er)
             }
         }
@@ -164,6 +192,32 @@ module.exports = {
         
     },
     CheckSheetName: function CheckSheetName(path,target) {
+
+        //Cell names to be checked
+        let forCheck = {"Participants":['Id','Queue','CallOutcome','TryCount','UserId'],
+                        "CallHistory":['Id','UserId','SampleId','StartTime','Duration','CallOutcome']}
+
+        let countryes = ["CY"]
+        // File names to be checked
+        let fileNames = {
+            "Participants":[],
+            "CallHistory":[]
+        }
+
+        countryes.forEach(c => {
+            fileNames[target].push(target+"_"+c+".xlsx")
+        });
+
+
+        let text = "Ok"
+
+        let name = path.split("\\").pop()
+
+        // if (!fileNames[target].includes(name)) {
+        //     text = 'Wrong file name. Should be: "' + target+'_XX.xlsx" - where XX is the country code.'
+        //     return text
+        // }
+
         let result = excelToJson({
             source: fs.readFileSync(path),
             header:{
@@ -171,12 +225,14 @@ module.exports = {
             },
             columnToKey: {
                 '*': '{{columnHeader}}'
-            }
+            },
+            includeEmptyLines: true
         });
-        let text = "Ok"
+        
         let rows = result[target]
-        let forCheck = {"Participants":['Id','Queue','CallOutcome','TryCount','UserId'],
-                        "CallHistory":['Id','UserId','SampleId','StartTime','Duration','CallOutcome']}
+        
+
+        
 
 
         if (!result.hasOwnProperty(target)) {
@@ -185,6 +241,8 @@ module.exports = {
         }
         let out =[]
 
+        rows.shift()
+
         forCheck[target].forEach(e => {
             if (rows.filter((o) => o.hasOwnProperty(e)).length === 0){
                 out.push(e)
@@ -192,6 +250,10 @@ module.exports = {
         });
         if (out.length>0) {
             text = "Missing columns: "+ out.toString()
+        }
+
+        if (rows.includes(undefined)) {
+            text = "Please remove the empty rows and try again."
         }
 
         return text
