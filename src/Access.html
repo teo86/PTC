@@ -1,0 +1,47 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1"> 
+	<title>PVU</title> 
+
+	<meta http-equiv="Content-Security-Policy"
+		content="script-src 'self' 'unsafe-inline';" /> 
+	<link rel="stylesheet" href="style.css">
+</head> 
+<body> 
+	<h1>Verify Access</h1> 
+	<div class="loader" id="load" hidden></div>
+	<div id="result"></div>
+	
+	<div id="upl">
+		<p>Please provide login information for SFTP Access</p>
+		<label for="usrname">Username</label>
+		<input type="text" id="usrname" name="usrname" placeholder="UserName" required>
+	
+		<label for="psw">Password</label>
+		<input type="password" id="psw" name="psw" placeholder="Password" required>
+	
+		 <p><button class="button" id="submit">Submit</button></p>
+	</div>
+	
+	
+	<!-- Adding Individual Renderer Process JS File -->
+	<script src="Access.js"></script> 
+
+	<p id="version" class="footer"></p>
+	<div id="notification" class="hidden">
+		<p id="message"></p>
+		<button id="close-button" onClick="closeNotification()">
+		  Close
+		</button>
+		<button id="restart-button" onClick="restartApp()" class="hidden">
+		  Restart
+		</button>
+	  </div>
+
+	
+  <script src="update.js">
+  </script>
+
+</body> 
+</html> 

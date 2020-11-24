@@ -259,6 +259,57 @@ module.exports = {
         return text
 
     },
+    CheckAccess: function CheckAccess(user,pasw,div,loader,upl) {
+        const Client = require('ssh2-sftp-client');
+
+        const config = {
+            host: 'uksftp.ipsos.com',
+            port: 22,
+            retries: 1,
+            username: user,
+            password: pasw
+          };
+          
+          
+        let client = new Client();
+
+        client.connect(config)
+            .then(() => {
+                div.innerHTML = "<h3>You have access to the secure folder</h3>"
+                loader.hidden = true
+                return client.end();
+            })
+            .catch(err => {
+                if (err.message=='connect: All configured authentication methods failed after 1 attempt') {
+                    div.innerHTML = '<h3 id="customerror">Login failed. Invalid username or password</h3>'
+                    upl.hidden = false
+                } else if(err.message=='connect: Timed out while waiting for handshake after 1 attempt'){
+                    div.innerHTML = '<h3 id="customerror">Could not connect to the Server</h3>'
+                } else if (err.message=='connect: client-socket error. Remote host at 78.136.2.44 refused connection after 1 attempt'){
+                    div.innerHTML = '<h3 id="customerror">Could not connect to the Server</h3>'
+                } else {
+                    div.innerHTML = '<h3 id="customerror">'+err.message+'</h3>'
+                }
+                
+                loader.hidden = true
+                console.error(err.message);
+                console.error(err);
+            });
+        
+            client.on('end',() => {setTimeout(function(){ myTimer(div,loader) }, 30000)})
+            
+            function myTimer(div,loader,upl) {
+                if (div.innerHTML === '') {
+                    div.innerHTML = "<h3>Could not connect to the Server</h3>"
+                    loader.hidden = true
+                }
+                div.hidden = false
+                return {div, loader}
+           }
+            div.hidden = false
+            return {div, loader, upl}
+
+    },
     SendFile: function SendFile(user,pasw,fs,div,loader, upl) {
 
         const Client = require('ssh2-sftp-client');

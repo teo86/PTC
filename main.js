@@ -53,22 +53,29 @@ app.on('ready', () => {
 		{
 			label: 'Menu',
 			submenu: [
-			{
-				label: 'Help',
-				click: function() {
+				{
+					label: 'Home',
+					click: function(){
+					win.loadFile('src/index.html') 
+					}
+				},
+				{
+					label: 'Verify Access',
+					click: function () {
+						win.loadFile('src/Access.html') 
+					}
+				},
+				{
+					label: 'Help',
+					click: function() {
 					win.loadURL("https://www.ipsos.com/"); 
 					// win.loadFile('src/test.pdf')
 					// TO DO
+					}
 				}
-			},
-			{
-				label: 'Restart',
-				click: function(){
-					win.loadFile('src/index.html') 
-				}
-			}
 			]
 		}
+		
 	])
 	Menu.setApplicationMenu(menu)
   })
