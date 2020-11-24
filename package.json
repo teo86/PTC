@@ -1,6 +1,6 @@
 {
   "name": "electronjs",
-  "productName": "Paradata validation and upload",
+  "productName": "PVU",
   "version": "0.3.2",
   "description": "",
   "build": {
