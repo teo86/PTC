@@ -90,14 +90,14 @@ h1 {
     font-size: 1.5em;
     font-weight: bold;
 }
-.notification {
+/* .notification {
     font-size: 1.5em;
     color: #ffffff;
     
     text-align: right;
-}
+} */
 
-.notification>span {
+/* .notification>span {
     display: inline-block;
     padding:  0.5em 2em 0.5em 2em;
     border-radius: 10px;
@@ -111,4 +111,4 @@ h1 {
 }
 #errorBox>span {
     background: #F50;
-}
+} */
