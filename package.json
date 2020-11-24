@@ -1,7 +1,7 @@
 {
   "name": "electronjs",
-  "productName": "PTV",
-  "version": "0.3.0",
+  "productName": "Paradata validation and upload",
+  "version": "0.3.1",
   "description": "",
   "build": {
     "win": {
