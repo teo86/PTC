@@ -63,6 +63,7 @@ app.on('ready', () => {
 					label: 'Verify Access',
 					click: function () {
 						win.loadFile('src/Access.html') 
+						// createBrowserWindow()
 					}
 				},
 				{
@@ -79,6 +80,15 @@ app.on('ready', () => {
 	])
 	Menu.setApplicationMenu(menu)
   })
+
+//   function createBrowserWindow() {
+// 	const win2 = new BrowserWindow({
+// 	  height: 600,
+// 	  width: 800
+// 	});
+  
+// 	win2.loadFile('src/Access.html');
+//   }
 
 ipcMain.on('app_version', (event) => {
 	event.sender.send('app_version', { version: app.getVersion() });

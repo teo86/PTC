@@ -197,7 +197,7 @@ module.exports = {
         let forCheck = {"Participants":['Id','Queue','CallOutcome','TryCount','UserId'],
                         "CallHistory":['Id','UserId','SampleId','StartTime','Duration','CallOutcome']}
 
-        let countryes = ["CY"]
+        let countryes = ["АТ","BE","BG","CY","CZ","DE","DK","EE","GR","ES","FI","FR","HR","HU","IE","IT","LT","LU","LV","MT","NL","PL","PT","RO","SE","SI","SK","GB","ME","MK","RS","CH","NO","AL","BA","XK"]
         // File names to be checked
         let fileNames = {
             "Participants":[],
@@ -213,10 +213,10 @@ module.exports = {
 
         let name = path.split("\\").pop()
 
-        // if (!fileNames[target].includes(name)) {
-        //     text = 'Wrong file name. Should be: "' + target+'_XX.xlsx" - where XX is the country code.'
-        //     return text
-        // }
+        if (!fileNames[target].includes(name)) {
+            text = 'Wrong file name. Should be: "' + target+'_XX.xlsx" - where XX is the country code.'
+            return text
+        }
 
         let result = excelToJson({
             source: fs.readFileSync(path),

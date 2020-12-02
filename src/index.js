@@ -229,8 +229,8 @@ function CreateTable(data) {
 	let result = {'files':0, 'names':[]}
 	if (data['errorDescription'].filter(x=>x.Type === "PT").length>0) {
 		result.files++
-		result.names.push("Participant.csv")
-		let stream = fs.createWriteStream(homeDir +'/Participant.csv')
+		result.names.push("Participant ValidationLog.csv")
+		let stream = fs.createWriteStream(homeDir +'/Participant ValidationLog.csv')
 		stream.write("Id,row,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "PT")
 		err.forEach(x=>{
@@ -240,8 +240,8 @@ function CreateTable(data) {
 	}
 	if (data['errorDescription'].filter(x=>x.Type === "CH").length>0) {
 		result.files++
-		result.names.push("CallHistory.csv")
-		let stream = fs.createWriteStream(homeDir +'/CallHistory.csv')
+		result.names.push("CallHistory ValidationLog.csv")
+		let stream = fs.createWriteStream(homeDir +'/CallHistory ValidationLog.csv')
 		stream.write("SampleId,Id,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "CH")
 		err.forEach(x=>{
@@ -251,8 +251,8 @@ function CreateTable(data) {
 	}
 	if (data['errorDescription'].filter(x=>x.Type === "Mrg").length>0) {
 		result.files++
-		result.names.push("Participant VS CallHistory.csv")
-		let stream = fs.createWriteStream(homeDir +'/Participant VS CallHistory.csv')
+		result.names.push("Participant VS CallHistory ValidationLog.csv")
+		let stream = fs.createWriteStream(homeDir +'/Participant VS CallHistory ValidationLog.csv')
 		stream.write("Id,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "Mrg")
 		err.forEach(x=>{
