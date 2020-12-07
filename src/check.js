@@ -6,11 +6,12 @@ module.exports = {
             "COMPLETED":['Completed'],
             "RECALL":['Rejected','NetworkBusy','FastBusy','DialerBusy','DialerFailed','Unknown','RemoteHangup','No Answer','NoAnswer','Answering Machine','AnswerMachine','Busy','Communication Difficulty'],
             "SILENT":['Silent','RemoteHangup'],
-            "UNUSABLE":['Rejected','NetworkBusy','FastBusy','Unknown','Abandoned','Fax','Wrong Number','WrongNumber','Disconnected','NotAvailable','LanguageBarrier','CommunicationDifficulty','HouseholdNumber','CompanyOutOfBusiness','UserDefTerm174','UserDefTerm175','UserDefTerm176','UserDefTerm177','UserDefTerm178','UserDefTerm203','UserDefTerm204','UserDefTerm205','UserDefTerm206','UserDefTerm207','UserDefTerm208','UserDefTerm209','UserDefTerm210','UserDefTerm211','UserDefTerm212','UserDefTerm217','UserDefTerm218','UserDefTerm250','UserDefTerm251','UserDefTerm253','UserDefTerm254','UserDefTerm255','UserDefTerm256','UserDefTerm257','UserDefTerm258','UserDefTerm261','UserDefTerm262','UserDefTerm263','UserDefTerm264','UserDefTerm265','UserDefTerm266','UserDefTerm267','UserDefTerm268','UserDefTerm269','UserDefTerm270','UserDefTerm271','UserDefTerm272','UserDefTerm273','UserDefTerm274','UserDefTerm275','UserDefTerm276','UserDefTerm277','UserDefTerm278','UserDefTerm279'],
+            "UNUSABLE":['BusinessNumber','Rejected','NetworkBusy','FastBusy','Unknown','Abandoned','Fax','Wrong Number','WrongNumber','Disconnected','NotAvailable','LanguageBarrier','CommunicationDifficulty','HouseholdNumber','CompanyOutOfBusiness','UserDefTerm174','UserDefTerm175','UserDefTerm176','UserDefTerm177','UserDefTerm178','UserDefTerm203','UserDefTerm204','UserDefTerm205','UserDefTerm206','UserDefTerm207','UserDefTerm208','UserDefTerm209','UserDefTerm210','UserDefTerm211','UserDefTerm212','UserDefTerm217','UserDefTerm218','UserDefTerm250','UserDefTerm251','UserDefTerm253','UserDefTerm254','UserDefTerm255','UserDefTerm256','UserDefTerm257','UserDefTerm258','UserDefTerm261','UserDefTerm262','UserDefTerm263','UserDefTerm264','UserDefTerm265','UserDefTerm266','UserDefTerm267','UserDefTerm268','UserDefTerm269','UserDefTerm270','UserDefTerm271','UserDefTerm272','UserDefTerm273','UserDefTerm274','UserDefTerm275','UserDefTerm276','UserDefTerm277','UserDefTerm278','UserDefTerm279'],
             "CHECK_NUMBER":['PossibleWrongNumber'],
             "APPOINTMENT":['Appointment','SoftAppointment','Soft Appointment'],
             "REFUSED":['Refused','RefusedGatekeeper','RefusedCompanyPolicy','UserDefTerm170','UserDefTerm171','UserDefTerm172','UserDefTerm173'],
-            "STOPPED":['Stopped']
+            "STOPPED":['Stopped'],
+            "TIMED_OUT":['Stopped']
         }
 
 
@@ -68,7 +69,7 @@ module.exports = {
                     obj['errorDescription'].push(er)
             }
             if (y.Queue.toLowerCase() !== 'fresh') {
-                if (y.TryCount < 1) {
+                if (y.TryCount < 1 && y.Queue.toLowerCase() !== 'timed_out') {
                     obj['numberOfErrors']++
                     let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Queue is "+y.Queue+" then TryCount should be greather than 0"}
                     obj['errorDescription'].push(er)
