@@ -174,6 +174,7 @@ checker.addEventListener('click', () => {
 	loader.hidden = false
 	let result = null
 	result = Check(global.filepath)
+	
 
 	if (result['lastStatus']==="") {
 		
@@ -226,11 +227,24 @@ but.addEventListener('click', () => {
 
 function CreateTable(data) {
 	
+	let ptName = global.filepath.PT.split("\\").pop()
+	let chName = global.filepath.CH.split("\\").pop()
+	
+	ptName = ptName.replace('Participants_','').replace('.xlsx','')
+	chName = chName.replace("CallHistory_","").replace('.xlsx','')
+	
+	let name
+	if (ptName===chName) {
+		name = ptName
+	} else {
+		name = ptName + "-" + chName
+	}
+
 	let result = {'files':0, 'names':[]}
 	if (data['errorDescription'].filter(x=>x.Type === "PT").length>0) {
 		result.files++
-		result.names.push("Participant ValidationLog.csv")
-		let stream = fs.createWriteStream(homeDir +'/Participant ValidationLog.csv')
+		result.names.push("Participant ValidationLog_"+name+".csv")
+		let stream = fs.createWriteStream(homeDir +'/Participant ValidationLog_'+name+'.csv')
 		stream.write("Id,row,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "PT")
 		err.forEach(x=>{
@@ -240,8 +254,8 @@ function CreateTable(data) {
 	}
 	if (data['errorDescription'].filter(x=>x.Type === "CH").length>0) {
 		result.files++
-		result.names.push("CallHistory ValidationLog.csv")
-		let stream = fs.createWriteStream(homeDir +'/CallHistory ValidationLog.csv')
+		result.names.push("CallHistory ValidationLog_"+name+".csv")
+		let stream = fs.createWriteStream(homeDir +'/CallHistory ValidationLog_'+name+'.csv')
 		stream.write("SampleId,Id,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "CH")
 		err.forEach(x=>{
@@ -251,8 +265,8 @@ function CreateTable(data) {
 	}
 	if (data['errorDescription'].filter(x=>x.Type === "Mrg").length>0) {
 		result.files++
-		result.names.push("Participant VS CallHistory ValidationLog.csv")
-		let stream = fs.createWriteStream(homeDir +'/Participant VS CallHistory ValidationLog.csv')
+		result.names.push("Participant VS CallHistory ValidationLog_"+name+".csv")
+		let stream = fs.createWriteStream(homeDir +'/Participant VS CallHistory ValidationLog_'+name+'.csv')
 		stream.write("Id,Error Descriptions"+"\r\n")
 		let err = data['errorDescription'].filter(x=>x.Type === "Mrg")
 		err.forEach(x=>{
