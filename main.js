@@ -69,8 +69,8 @@ app.on('ready', () => {
 				{
 					label: 'Help',
 					click: function() {
-					win.loadURL("https://www.ipsos.com/"); 
-					// win.loadFile('src/test.pdf')
+					// win.loadURL("https://www.ipsos.com/"); 
+					win.loadFile('src/help.html')
 					// TO DO
 					}
 				}

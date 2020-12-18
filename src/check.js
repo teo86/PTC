@@ -21,186 +21,197 @@ module.exports = {
                     'lastStatus': "",
                     'errorDescription':[]
                     }
-
-        const result = excelToJson({
-            source: fs.readFileSync(path.PT),
-            header:{
-                rows: 1
-            },
-            columnToKey: {
-                '*': '{{columnHeader}}'
-            }
-        });
-        
-        const resultCH = excelToJson({
-            source: fs.readFileSync(path.CH),
-            header:{
-                rows: 1
-            },
-            columnToKey: {
-                '*': '{{columnHeader}}'
-            }
-        });
-
         
 
-        let rowsPT = result.Participants
+        try {
+            
+            const result = excelToJson({
+                source: fs.readFileSync(path.PT),
+                header:{
+                    rows: 1
+                },
+                columnToKey: {
+                    '*': '{{columnHeader}}'
+                }
+            });
+            
+            const resultCH = excelToJson({
+                source: fs.readFileSync(path.CH),
+                header:{
+                    rows: 1
+                },
+                columnToKey: {
+                    '*': '{{columnHeader}}'
+                }
+            });
+    
+            
+    
+            let rowsPT = result.Participants
+            
+            let moment = require('moment')
 
-        resultCH.CallHistory = resultCH.CallHistory.sort((a, b) => {
-            let date1 = new Date(a.StartTime)
-            let date2 = new Date(b.StartTime)
-            return date1 - date2
-        });
-
-        let rowsCH = resultCH.CallHistory
-
-        // Check the Participant Table
-        rowsPT.forEach(y => {
-            if (y.hasOwnProperty('Id') === false || y.hasOwnProperty('Queue') === false || 
-                y.hasOwnProperty('TryCount') === false) {
-                    obj['numberOfErrors']++
-                    let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"id,Queue and TryCount are required"}
-                    obj['errorDescription'].push(er)
-            }
-            // if (typeof y.TryCount !== 'number') {
-            if (isNaN(y.TryCount) === true) {
-                    obj['numberOfErrors']++
-                    let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"TryCount is not a number"}
-                    obj['errorDescription'].push(er)
-            }
-            if (y.hasOwnProperty('Queue')) {
-                if (y.Queue.toLowerCase() !== 'fresh') {
-                    if (y.TryCount < 1 && y.Queue.toLowerCase() !== 'timed_out') {
+            resultCH.CallHistory = resultCH.CallHistory.sort((a, b) => {
+                day = moment(a.StartTime, "DD/MM/YYYY hh:mm:ss")
+                day2 = moment(b.StartTime, "DD/MM/YYYY  hh:mm:ss")
+                let date1 = new Date(day)
+                let date2 = new Date(day2)
+                return date1 - date2
+            });
+    
+            let rowsCH = resultCH.CallHistory
+    
+            // Check the Participant Table
+            rowsPT.forEach(y => {
+                if (y.hasOwnProperty('Id') === false || y.hasOwnProperty('Queue') === false || 
+                    y.hasOwnProperty('TryCount') === false) {
                         obj['numberOfErrors']++
-                        let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Queue is "+y.Queue+" then TryCount should be greather than 0"}
+                        let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"id,Queue and TryCount are required"}
                         obj['errorDescription'].push(er)
-                    }
-                    if (y.hasOwnProperty('CallOutcome') === false) {
+                }
+                // if (typeof y.TryCount !== 'number') {
+                if (isNaN(y.TryCount) === true) {
                         obj['numberOfErrors']++
-                        let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Missing CallOutcome"}
+                        let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"TryCount is not a number"}
                         obj['errorDescription'].push(er)
-                    }
-                    if (y.hasOwnProperty('UserId') === false) {
-                        obj['numberOfErrors']++
-                        let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Missing UserID"}
-                        obj['errorDescription'].push(er)
-                    }
-                    // console.log(y.Queue.toUpperCase())
-                    if (participantLogic.hasOwnProperty(y.Queue.toUpperCase())) {
-                        if (!participantLogic[y.Queue.toUpperCase()].includes(y.CallOutcome)) {
+                }
+                if (y.hasOwnProperty('Queue')) {
+                    if (y.Queue.toLowerCase() !== 'fresh') {
+                        if (y.TryCount < 1 && y.Queue.toLowerCase() !== 'timed_out') {
                             obj['numberOfErrors']++
-                            let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':'"Mismatch between Queue and CallOutcome. Queue = '+y.Queue+' and CallOutcome = '+y.CallOutcome+'"'}
+                            let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Queue is "+y.Queue+" then TryCount should be greather than 0"}
+                            obj['errorDescription'].push(er)
+                        }
+                        if (y.hasOwnProperty('CallOutcome') === false) {
+                            obj['numberOfErrors']++
+                            let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Missing CallOutcome"}
+                            obj['errorDescription'].push(er)
+                        }
+                        if (y.hasOwnProperty('UserId') === false) {
+                            obj['numberOfErrors']++
+                            let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Missing UserID"}
+                            obj['errorDescription'].push(er)
+                        }
+                        // console.log(y.Queue.toUpperCase())
+                        if (participantLogic.hasOwnProperty(y.Queue.toUpperCase())) {
+                            if (!participantLogic[y.Queue.toUpperCase()].includes(y.CallOutcome)) {
+                                obj['numberOfErrors']++
+                                let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':'"Mismatch between Queue and CallOutcome. Queue = '+y.Queue+' and CallOutcome = '+y.CallOutcome+'"'}
+                                obj['errorDescription'].push(er)
+                            }
+                        } else {
+                            obj['numberOfErrors']++
+                            let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':'"The Queue is unknown. Queue = '+y.Queue+'"'}
+                            obj['errorDescription'].push(er)
+                        }
+                       
+        
+        
+                    }
+                } else {
+                    obj['numberOfErrors']++
+                    let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Queue is blank"}
+                    obj['errorDescription'].push(er)
+                }
+                
+                if (y.TryCount>50) {
+                    obj['numberOfErrors']++
+                    let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"TryCount should be less than 50"}
+                    obj['errorDescription'].push(er)
+                }
+            });
+            
+            // Check The Call History Table
+            
+            let recCH = {}
+    
+            // y.hasOwnProperty('Duration') === false || 
+            rowsCH.forEach(y => {
+                if (y.hasOwnProperty('Id') === false || y.hasOwnProperty('UserId') === false || 
+                    y.hasOwnProperty('SampleId') === false || y.hasOwnProperty('StartTime') === false ||
+                    y.hasOwnProperty('CallOutcome') === false) {
+                        obj['numberOfErrors']++
+                        let er = {'Type': "CH", 'SampleId':y.SampleId, 'Id':y.Id,'text':"id UserId SampleId StartTime and CallOutcome are required"}
+                        obj['errorDescription'].push(er)
+                }
+    
+                
+                    if (!recCH.hasOwnProperty(y.SampleId)) {
+                        recCH[y.SampleId] = {
+                            'Id': [y.Id],
+                            'UserId': y.UserId,
+                            'StartTime': [y.StartTime],
+                            'Duration': y.Duration,
+                            'CallOutcome': [y.CallOutcome]
+                        }
+                    } else {
+                        
+                        recCH[y.SampleId].Id.push(y.Id)
+                        recCH[y.SampleId].UserId = y.UserId
+                        recCH[y.SampleId].StartTime.push(y.StartTime)
+                        recCH[y.SampleId].Duration+= y.Duration
+                        recCH[y.SampleId].CallOutcome.push(y.CallOutcome)
+                    }
+                
+            })
+    
+            // TO DO check Call History sorted file
+    
+            rowsPT.forEach(x => {
+                if (x.hasOwnProperty('Queue')) {
+                    if (x.Queue.toLowerCase() ==="fresh") {
+                        if (recCH.hasOwnProperty(x.Id)=== true) {
+                            obj['numberOfErrors']++
+                            let er = {'Type': "Mrg", 'Id':x.Id,'text':"Queue is Fresh in Participant Table but has record in CallHistory"}
                             obj['errorDescription'].push(er)
                         }
                     } else {
-                        obj['numberOfErrors']++
-                        let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':'"The Queue is unknown. Queue = '+y.Queue+'"'}
-                        obj['errorDescription'].push(er)
-                    }
-                   
-    
-    
-                }
-            } else {
-                obj['numberOfErrors']++
-                let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"Queue is blank"}
-                obj['errorDescription'].push(er)
-            }
-            
-            if (y.TryCount>50) {
-                obj['numberOfErrors']++
-                let er = {'Type':"PT", 'Id':y.Id, 'row':rowsPT.indexOf(y)+2,'text':"TryCount should be less than 50"}
-                obj['errorDescription'].push(er)
-            }
-        });
-        
-        // Check The Call History Table
-        
-        let recCH = {}
-
-        // y.hasOwnProperty('Duration') === false || 
-        rowsCH.forEach(y => {
-            if (y.hasOwnProperty('Id') === false || y.hasOwnProperty('UserId') === false || 
-                y.hasOwnProperty('SampleId') === false || y.hasOwnProperty('StartTime') === false ||
-                y.hasOwnProperty('CallOutcome') === false) {
-                    obj['numberOfErrors']++
-                    let er = {'Type': "CH", 'SampleId':y.SampleId, 'Id':y.Id,'text':"id UserId SampleId StartTime and CallOutcome are required"}
-                    obj['errorDescription'].push(er)
-            }
-
-            
-                if (!recCH.hasOwnProperty(y.SampleId)) {
-                    recCH[y.SampleId] = {
-                        'Id': [y.Id],
-                        'UserId': y.UserId,
-                        'StartTime': [y.StartTime],
-                        'Duration': y.Duration,
-                        'CallOutcome': [y.CallOutcome]
-                    }
-                } else {
-                    
-                    recCH[y.SampleId].Id.push(y.Id)
-                    recCH[y.SampleId].UserId = y.UserId
-                    recCH[y.SampleId].StartTime.push(y.StartTime)
-                    recCH[y.SampleId].Duration+= y.Duration
-                    recCH[y.SampleId].CallOutcome.push(y.CallOutcome)
-                }
-            
-        })
-
-        // TO DO check Call History sorted file
-
-        rowsPT.forEach(x => {
-            if (x.hasOwnProperty('Queue')) {
-                if (x.Queue.toLowerCase() ==="fresh") {
-                    if (recCH.hasOwnProperty(x.Id)=== true) {
-                        obj['numberOfErrors']++
-                        let er = {'Type': "Mrg", 'Id':x.Id,'text':"Queue is Fresh in Participant Table but has record in CallHistory"}
-                        obj['errorDescription'].push(er)
-                    }
-                } else {
-                    if (!recCH.hasOwnProperty(x.Id)) {
-                        obj['numberOfErrors']++
-                        let er = {'Type': "Mrg", 'Id': x.Id,'text':"Queue in Participant Table is "+x.Queue+" but the records in CallHistory are missing."}
-                        obj['errorDescription'].push(er)
-                        return
-                    }
-                    let current = recCH[x.Id]
-                    if (current.UserId!==x.UserId) {
-                        obj['numberOfErrors']++
-                        let er = {'Type': "Mrg", 'Id': x.Id,'text':"UserID not match in Participant Table and CallHistory"}
-                        obj['errorDescription'].push(er)
-                    }
-                    if (isNaN(x.TryCount) === false) {
-                        if (current.CallOutcome.length!==parseInt(x.TryCount)) {
+                        if (!recCH.hasOwnProperty(x.Id)) {
                             obj['numberOfErrors']++
-                            let er = {'Type': "Mrg", 'Id': x.Id,'text':"TryCount in Participant Table is "+x.TryCount+" but the number of records in CallHistory is "+current.CallOutcome.length}
+                            let er = {'Type': "Mrg", 'Id': x.Id,'text':"Queue in Participant Table is "+x.Queue+" but the records in CallHistory are missing."}
+                            obj['errorDescription'].push(er)
+                            return
+                        }
+                        let current = recCH[x.Id]
+                        if (current.UserId!==x.UserId) {
+                            obj['numberOfErrors']++
+                            let er = {'Type': "Mrg", 'Id': x.Id,'text':"UserID not match in Participant Table and CallHistory"}
                             obj['errorDescription'].push(er)
                         }
+                        if (isNaN(x.TryCount) === false) {
+                            if (current.CallOutcome.length!==parseInt(x.TryCount)) {
+                                obj['numberOfErrors']++
+                                let er = {'Type': "Mrg", 'Id': x.Id,'text':"TryCount in Participant Table is "+x.TryCount+" but the number of records in CallHistory is "+current.CallOutcome.length}
+                                obj['errorDescription'].push(er)
+                            }
+                        }
+                        
+                        if (x.CallOutcome!==current.CallOutcome[current.CallOutcome.length -1]) {
+                            obj['numberOfErrors']++
+                            let er = {'Type': "Mrg", 'Id': x.Id,'text':"Last CallOutcome in CallHistory is "+current.CallOutcome[current.CallOutcome.length -1]+" but in Participant Table is " +x.CallOutcome}
+                            obj['errorDescription'].push(er)
+                        }
+                        
                     }
-                    
-                    if (x.CallOutcome!==current.CallOutcome[current.CallOutcome.length -1]) {
-                        obj['numberOfErrors']++
-                        let er = {'Type': "Mrg", 'Id': x.Id,'text':"Last CallOutcome in CallHistory is "+current.CallOutcome[current.CallOutcome.length -1]+" but in Participant Table is " +x.CallOutcome}
-                        obj['errorDescription'].push(er)
-                    }
-                    
+                } 
+                
+                delete recCH[x.Id]
+            })
+            for(let prop in recCH) {
+                if(recCH.hasOwnProperty(prop)) {
+                    obj['numberOfErrors']++
+                    let er = {'Type': "Mrg", 'Id':prop,'text':"No record in Participant table for Id = "+prop}
+                    obj['errorDescription'].push(er)
                 }
-            } 
-            
-            delete recCH[x.Id]
-        })
-        for(let prop in recCH) {
-            if(recCH.hasOwnProperty(prop)) {
-                obj['numberOfErrors']++
-                let er = {'Type': "Mrg", 'Id':prop,'text':"No record in Participant table for Id = "+prop}
-                obj['errorDescription'].push(er)
             }
+    
+            if (obj.numberOfErrors==0) {
+                obj['lastStatus'] = 'The file is OK'
+            }
+        } catch (error) {
+            obj['lastStatus'] = 'Oops! Something went wrong.'
         }
-
-        if (obj.numberOfErrors==0) {
-            obj['lastStatus'] = 'The file is OK'
-        }
+        
         
         return obj
 
