@@ -1,7 +1,7 @@
 {
   "name": "electronjs",
   "productName": "PVU",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "",
   "build": {
     "win": {
@@ -32,7 +32,7 @@
   "author": "TEO",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "convert-excel-to-json": "^1.7.0",
     "electron-updater": "^4.3.5",
     "moment": "^2.29.1",
